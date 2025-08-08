@@ -34,9 +34,9 @@ export default function SemiRingNavBar({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Svg width={width} height={100} style={styles.absoluteFill}>
+      <Svg width={width} height={80} style={styles.absoluteFill}>
         <Path
-          d={`M 80 100 C ${width * 0.25} 0, ${width * 0.75} 0, ${width - 80} 100`}
+          d={`M 120 80 C ${width * 0.35} 20, ${width * 0.65} 20, ${width - 120} 80`}
           stroke="#23203F"
           strokeWidth={50}
           fill="none"
@@ -46,7 +46,7 @@ export default function SemiRingNavBar({ navigation }) {
 
       <View pointerEvents="box-none" style={styles.buttons}>
         <TouchableOpacity
-          style={[styles.button, { left: width * 0.18 }]}
+          style={[styles.button, { left: width * 0.24 }]}
           onPress={() => handlePress('food', 'EatTodayStep1')}
         >
           <MaterialCommunityIcons
@@ -57,7 +57,7 @@ export default function SemiRingNavBar({ navigation }) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.button, { left: width * 0.5 - 28, top: -14 }]}
+          style={[styles.button, { left: width * 0.5 - 28, top: 10 }]}
           onPress={() => handlePress('home', 'home')}
         >
           <Feather
@@ -68,7 +68,7 @@ export default function SemiRingNavBar({ navigation }) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.button, { left: width * 0.82 - 56 }]}
+          style={[styles.button, { left: width * 0.82 - 85 }]}
           onPress={() => handlePress('run', 'Activities')}
         >
           <MaterialCommunityIcons
@@ -88,13 +88,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 100,
+    height: 80,
     zIndex: 10,
     backgroundColor: 'transparent',
   },
   buttons: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 0,
     width: width,
     flexDirection: 'row',
     justifyContent: 'center',
