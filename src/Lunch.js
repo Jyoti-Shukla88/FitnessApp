@@ -13,35 +13,34 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Svg, { Path } from 'react-native-svg';
 import SemiRingNavBar from './SemiRingNavBar';
-import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
-export default function Breakfast({ navigation, route }) {
+export default function Lunch({ navigation, route }) {
   const calorieGoal = 2000;
 
-  const breakfastItems = [
-    { id: '1', name: 'TOAST', calories: 80 },
-    { id: '2', name: 'PORK', calories: 250 },
-    { id: '3', name: 'CHICKEN', calories: 200 },
-    { id: '4', name: 'OMELETTE', calories: 150 },
-    { id: '5', name: 'BEEF', calories: 230 },
-    { id: '6', name: 'FISH', calories: 180 },
-    { id: '7', name: 'BACON', calories: 190 },
-    { id: '8', name: 'ORANGE', calories: 60 },
+  const lunchItems = [
+    { id: '1', name: 'GRILLED CHICKEN', calories: 280 },
+    { id: '2', name: 'PASTA', calories: 350 },
+    { id: '3', name: 'SALAD', calories: 150 },
+    { id: '4', name: 'RICE', calories: 200 },
+    { id: '5', name: 'BEEF STEAK', calories: 400 },
+    { id: '6', name: 'FISH CURRY', calories: 300 },
+    { id: '7', name: 'SOUP', calories: 120 },
+    { id: '8', name: 'BREAD ROLL', calories: 90 },
   ];
 
   const [servings, setServings] = useState(
-    breakfastItems.reduce((acc, item) => {
+    lunchItems.reduce((acc, item) => {
       acc[item.name] = 0;
       return acc;
     }, {})
   );
 
-  // 🔹 Animated values
+  // 🔹 Animated values for bar and numbers
   const animatedProgress = useRef(new Animated.Value(0)).current;
   const animatedDailyTotal = useRef(new Animated.Value(0)).current;
-  const animatedBreakfastTotal = useRef(new Animated.Value(0)).current;
+  const animatedLunchTotal = useRef(new Animated.Value(0)).current;
 
   const updateServings = (itemName, type) => {
     setServings((prev) => {
@@ -55,7 +54,7 @@ export default function Breakfast({ navigation, route }) {
 
   const getItemTotalCalories = (item) => servings[item.name] * item.calories;
 
-  const categoryTotalCalories = breakfastItems.reduce(
+  const categoryTotalCalories = lunchItems.reduce(
     (total, item) => total + getItemTotalCalories(item),
     0
   );
@@ -65,7 +64,7 @@ export default function Breakfast({ navigation, route }) {
 
   const progress = Math.min(dailyTotalCalories / calorieGoal, 1);
 
-  // 🔹 Animate when values change
+  // 🔹 Animate when data changes
   useEffect(() => {
     Animated.timing(animatedProgress, {
       toValue: progress,
@@ -81,7 +80,7 @@ export default function Breakfast({ navigation, route }) {
       useNativeDriver: false,
     }).start();
 
-    Animated.timing(animatedBreakfastTotal, {
+    Animated.timing(animatedLunchTotal, {
       toValue: categoryTotalCalories,
       duration: 500,
       easing: Easing.out(Easing.ease),
@@ -100,8 +99,8 @@ export default function Breakfast({ navigation, route }) {
     else return '#F44336';
   };
 
-  // 🔹 Animated number component
-  const AnimatedNumber = ({ value, suffix = ' kcal', prefix = '' }) => {
+  // 🔹 Reusable Animated Number text
+  const AnimatedNumber = ({ value, suffix = ' kcal' }) => {
     const [displayValue, setDisplayValue] = useState(0);
     useEffect(() => {
       const id = value.addListener(({ value }) => {
@@ -109,9 +108,11 @@ export default function Breakfast({ navigation, route }) {
       });
       return () => value.removeListener(id);
     }, [value]);
+
     return (
-      <Text style={styles.progressText}>
-        {prefix}{displayValue}{suffix}
+      <Text>
+        {displayValue}
+        {suffix}
       </Text>
     );
   };
@@ -158,7 +159,7 @@ export default function Breakfast({ navigation, route }) {
         </Svg>
         <View style={styles.headerContent}>
           <Feather name="menu" size={24} color="#fff" />
-          <Text style={styles.headerText}>BREAKFAST</Text>
+          <Text style={styles.headerText}>LUNCH</Text>
           <View style={{ width: 24 }} />
         </View>
       </View>
@@ -178,19 +179,19 @@ export default function Breakfast({ navigation, route }) {
         </Text>
       </View>
 
-      {/* List */}
+      {/* Food List */}
       <FlatList
-        data={breakfastItems}
+        data={lunchItems}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        style={styles.listContainer}
-        showsVerticalScrollIndicator
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={true}
       />
 
       {/* 🔹 Animated Summary */}
       <View style={styles.summaryContainer}>
         <Text style={styles.summaryText}>
-          Breakfast Total: <AnimatedNumber value={animatedBreakfastTotal} />
+          Lunch Total: <AnimatedNumber value={animatedLunchTotal} />
         </Text>
         <Text style={styles.summaryText}>
           Daily Total: <AnimatedNumber value={animatedDailyTotal} />
@@ -217,11 +218,11 @@ const styles = StyleSheet.create({
     top: 0 
   },
   headerContent: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', 
-    height: 120, 
-    paddingHorizontal: 16, 
+    alignItems: 'center',
+    height: 120,
+    paddingHorizontal: 16,
     paddingTop: 40,
   },
   headerText: { 
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
 
   progressBarContainer: { 
     paddingHorizontal: 10, 
-    marginTop: 0 
+    marginTop:0
   },
   progressBarBackground: {
     height: 10, 
@@ -254,17 +255,15 @@ const styles = StyleSheet.create({
   },
   progressText: {
     marginTop: 5,
-    fontSize: 14, 
-    fontWeight: '600', 
-    color: '#23203F', 
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#23203F',
     textAlign: 'center',
   },
 
   listContainer: { 
-    flex: 1, 
     paddingHorizontal: 20, 
-    paddingTop: 10, 
-    marginBottom: 9 
+    paddingBottom: 10 
   },
   listItem: {
     flexDirection: 'row', 
@@ -285,9 +284,8 @@ const styles = StyleSheet.create({
   counterContainer: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    marginHorizontal: 8 
-  },
-  counterButton: {
+    marginHorizontal: 8 },
+    counterButton: {
     width: 30, 
     height: 30, 
     borderRadius: 15, 
@@ -316,7 +314,6 @@ const styles = StyleSheet.create({
   },
 
   summaryContainer: {
-     
     borderWidth: 1, 
     borderColor: '#ddd',
     backgroundColor: '#4CAF50', 

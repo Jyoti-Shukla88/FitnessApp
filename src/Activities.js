@@ -90,10 +90,18 @@ export default function Activity({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, 
+    backgroundColor: '#fff' 
+  },
 
-  headerContainer: { position: 'relative', height: 250 },
-  svgCurve: { position: 'absolute', top: 0 },
+  headerContainer: { 
+    position: 'relative', 
+    height: 250 
+  },
+  svgCurve: { 
+    position: 'absolute', 
+    top: 0 
+  },
   headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',

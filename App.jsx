@@ -8,6 +8,9 @@ import Activities from './src/Activities';
 import WalkingScreen from './src/Walking';
 import home from './src/home';
 import DailyStep from './src/DailyStep';
+import Lunch from './src/Lunch';
+import Snack from './src/Snack';
+import Dinner from './src/Dinner';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -23,6 +26,9 @@ export default function App() {
           <Stack.Screen name="Walking" component={WalkingScreen} />
           <Stack.Screen name="home" component={home} />
           <Stack.Screen name="DailyStep" component={DailyStep} />
+          <Stack.Screen name="Lunch" component={Lunch} />
+          <Stack.Screen name="Snack" component={Snack} />
+          <Stack.Screen name="Dinner" component={Dinner} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

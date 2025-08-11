@@ -63,17 +63,23 @@ export default function EatTodayStep1({navigation}) {
           <Text style={styles.quadrantLabel}>BREAKFAST</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.quadrantButton, { left: 20, top: 200 }]}>
+        <TouchableOpacity style={[styles.quadrantButton, { left: 20, top: 200 }]}
+        onPress={() => navigation.navigate('Lunch')}
+        >
           <MaterialCommunityIcons name="silverware-fork-knife" size={40} color="#5D5D91" />
           <Text style={styles.quadrantLabel}>LUNCH</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.quadrantButton, { right: 20, top: 200 }]}>
+        <TouchableOpacity style={[styles.quadrantButton, { right: 20, top: 200 }]}
+         onPress={() => navigation.navigate('Snack')}
+        >
           <MaterialCommunityIcons name="food-apple-outline" size={40} color="#5D5D91" />
           <Text style={styles.quadrantLabel}>SNACKS</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.quadrantButton, { top: 300, left: width / 4 }]}>
+        <TouchableOpacity style={[styles.quadrantButton, { top: 300, left: width / 4 }]}
+         onPress={() => navigation.navigate('Dinner')}
+        >
           <MaterialCommunityIcons name="food-turkey" size={40} color="#5D5D91" />
           <Text style={styles.quadrantLabel}>DINNER</Text>
         </TouchableOpacity>
