@@ -11,11 +11,13 @@ import DailyStep from './src/DailyStep';
 import Lunch from './src/Lunch';
 import Snack from './src/Snack';
 import Dinner from './src/Dinner';
+import { CaloriesProvider } from './src/CaloriesContext';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <SafeAreaProvider>
+      <CaloriesProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="EatTodayStep1"
         screenOptions={{ headerShown: false }}
@@ -31,6 +33,7 @@ export default function App() {
           <Stack.Screen name="Dinner" component={Dinner} />
         </Stack.Navigator>
       </NavigationContainer>
+      </CaloriesProvider>
     </SafeAreaProvider>
   );
 }

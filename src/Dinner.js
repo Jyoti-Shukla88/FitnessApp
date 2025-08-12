@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect,useContext } from 'react';
 import {
   View,
   Text,
@@ -13,11 +13,16 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Svg, { Path } from 'react-native-svg';
 import SemiRingNavBar from './SemiRingNavBar';
+import AnimatedSummary from './AnimatedSummary';
+import { CaloriesContext } from './CaloriesContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
+const STORAGE_KEY_SERVINGS = '@dinnerServings';
 
 export default function Dinner({ navigation, route }) {
   const calorieGoal = 2000;
+  const { mealCalories,updateMealCalories } = useContext(CaloriesContext);
 
   const dinnerItems = [
     { id: '1', name: 'ROAST CHICKEN', calories: 320 },
@@ -36,6 +41,33 @@ export default function Dinner({ navigation, route }) {
       return acc;
     }, {})
   );
+  
+    // AsyncStorage: load servings on mount
+  useEffect(() => {
+    const loadServings = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(STORAGE_KEY_SERVINGS);
+        if (stored) {
+          setServings(JSON.parse(stored));
+        }
+      } catch (e) {
+        console.error('Failed to load servings:', e);
+      }
+    };
+    loadServings();
+  }, []);
+
+  // AsyncStorage: save servings whenever updated
+  useEffect(() => {
+    const saveServings = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEY_SERVINGS, JSON.stringify(servings));
+      } catch (e) {
+        console.error('Failed to save servings:', e);
+      }
+    };
+    saveServings();
+  }, [servings]);
 
   // 🔹 Animated values
   const animatedProgress = useRef(new Animated.Value(0)).current;
@@ -57,12 +89,19 @@ export default function Dinner({ navigation, route }) {
     (total, item) => total + getItemTotalCalories(item),
     0
   );
+  useEffect(() => {
+  updateMealCalories('dinner', categoryTotalCalories);
+}, [categoryTotalCalories, updateMealCalories]);
 
-  const dailyTotalCalories =
-    (route?.params?.otherMealsCalories || 0) + categoryTotalCalories;
-
+  //const dailyTotalCalories =
+   // (route?.params?.otherMealsCalories || 0) + categoryTotalCalories;
+   const dailyTotalCalories =
+    (mealCalories.breakfast || 0) +
+    (mealCalories.lunch || 0) +
+    (mealCalories.snacks || 0) +
+    (mealCalories.dinner || 0);
   const progress = Math.min(dailyTotalCalories / calorieGoal, 1);
-
+  
   // 🔹 Animate when values change
   useEffect(() => {
     Animated.timing(animatedProgress, {
@@ -184,14 +223,11 @@ export default function Dinner({ navigation, route }) {
       />
 
       {/* 🔹 Animated Summary */}
-      <View style={styles.summaryContainer}>
-        <Text style={styles.summaryText}>
-          Dinner Total: <AnimatedNumber value={animatedDinnerTotal} />
-        </Text>
-        <Text style={styles.summaryText}>
-          Daily Total: <AnimatedNumber value={animatedDailyTotal} />
-        </Text>
-      </View>
+      
+       <AnimatedSummary
+        animatedBreakfastTotal={animatedDinnerTotal}
+        animatedDailyTotal={animatedDailyTotal}
+      />
 
       <SemiRingNavBar navigation={navigation} activeInitial="food" />
     </SafeAreaView>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect,useContext } from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,16 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Svg, { Path } from 'react-native-svg';
 import SemiRingNavBar from './SemiRingNavBar';
-import LinearGradient from 'react-native-linear-gradient';
+import AnimatedSummary from './AnimatedSummary'; 
+import { CaloriesContext } from './CaloriesContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
+const STORAGE_KEY_SERVINGS = '@breakfastServings';
 
 export default function Breakfast({ navigation, route }) {
   const calorieGoal = 2000;
+  const { mealCalories,updateMealCalories } = useContext(CaloriesContext);
 
   const breakfastItems = [
     { id: '1', name: 'TOAST', calories: 80 },
@@ -37,6 +41,19 @@ export default function Breakfast({ navigation, route }) {
       return acc;
     }, {})
   );
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(STORAGE_KEY_SERVINGS);
+        if (stored) setServings(JSON.parse(stored));
+      } catch (e) { console.error(e); }
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem(STORAGE_KEY_SERVINGS, JSON.stringify(servings)).catch(console.error);
+  }, [servings]);
 
   // 🔹 Animated values
   const animatedProgress = useRef(new Animated.Value(0)).current;
@@ -59,12 +76,21 @@ export default function Breakfast({ navigation, route }) {
     (total, item) => total + getItemTotalCalories(item),
     0
   );
-
+  
+    useEffect(() => {
+    updateMealCalories('breakfast', categoryTotalCalories);
+  },[categoryTotalCalories, updateMealCalories]);
+  //const dailyTotalCalories =
+    //(route?.params?.otherMealsCalories || 0) + categoryTotalCalories;
+   // Calculate daily total dynamically from context
   const dailyTotalCalories =
-    (route?.params?.otherMealsCalories || 0) + categoryTotalCalories;
-
+    (mealCalories.breakfast || 0) +
+    (mealCalories.lunch || 0) +
+    (mealCalories.snacks || 0) +
+    (mealCalories.dinner || 0);
   const progress = Math.min(dailyTotalCalories / calorieGoal, 1);
-
+   
+ 
   // 🔹 Animate when values change
   useEffect(() => {
     Animated.timing(animatedProgress, {
@@ -188,15 +214,10 @@ export default function Breakfast({ navigation, route }) {
       />
 
       {/* 🔹 Animated Summary */}
-      <View style={styles.summaryContainer}>
-        <Text style={styles.summaryText}>
-          Breakfast Total: <AnimatedNumber value={animatedBreakfastTotal} />
-        </Text>
-        <Text style={styles.summaryText}>
-          Daily Total: <AnimatedNumber value={animatedDailyTotal} />
-        </Text>
-      </View>
-
+      <AnimatedSummary
+  animatedBreakfastTotal={animatedBreakfastTotal}
+  animatedDailyTotal={animatedDailyTotal}
+/>
       <SemiRingNavBar navigation={navigation} activeInitial="food" />
     </SafeAreaView>
   );
