@@ -45,7 +45,7 @@ export const CaloriesProvider = ({ children }) => {
   // Only update state if calories actually change
   const updateMealCalories = useCallback((meal, calories) => {
     setMealCalories(prev => {
-      if (prev[meal] === calories) return prev; // No change, avoid re-render
+      if (prev[meal] === calories) return prev; 
       return { ...prev, [meal]: calories };
     });
   }, []);

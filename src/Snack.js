@@ -86,8 +86,6 @@ export default function Snack({ navigation, route }) {
   updateMealCalories('snacks', categoryTotalCalories);
 }, [categoryTotalCalories, updateMealCalories]);
 
-  //const dailyTotalCalories =
-    //(route?.params?.otherMealsCalories || 0) + categoryTotalCalories;
    const dailyTotalCalories =
     (mealCalories.breakfast || 0) +
     (mealCalories.lunch || 0) +
@@ -125,9 +123,9 @@ export default function Snack({ navigation, route }) {
   });
 
   const getProgressColor = () => {
-    if (progress < 0.8) return '#4CAF50'; // Green if below 80%
-    else if (progress < 1) return '#FF9800'; // Orange if near goal
-    else return '#F44336'; // Red if exceeded
+    if (progress < 0.8) return '#4CAF50';
+    else if (progress < 1) return '#FF9800'; 
+    else return '#F44336'; 
   };
 
   // Animated number renderer
@@ -341,25 +339,4 @@ const styles = StyleSheet.create({
     color: '#333' 
 },
 
-  summaryContainer: {
-    borderWidth: 1, 
-    borderColor: '#ddd',
-    backgroundColor: '#4CAF50', 
-    marginBottom: 75,
-    marginHorizontal: 15,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  summaryText: { 
-    fontSize: 18, 
-    fontWeight: '700', 
-    color: '#fff', 
-    marginLeft: 13 ,
-    marginVertical: 4,
-},
 });

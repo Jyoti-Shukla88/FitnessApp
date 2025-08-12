@@ -22,8 +22,8 @@ export default function AnimatedSummary() {
 const styles = StyleSheet.create({
   summaryContainer: {
      borderWidth: 1, 
-    borderColor: '#ddd',
-    backgroundColor: '#4CAF50', 
+    borderColor: '#fff',
+    backgroundColor: '#23203F', 
     marginBottom: 75,
     marginHorizontal: 15,
     paddingVertical: 15,

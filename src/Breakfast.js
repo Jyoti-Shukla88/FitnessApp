@@ -55,7 +55,7 @@ export default function Breakfast({ navigation, route }) {
     AsyncStorage.setItem(STORAGE_KEY_SERVINGS, JSON.stringify(servings)).catch(console.error);
   }, [servings]);
 
-  // 🔹 Animated values
+  // Animated values
   const animatedProgress = useRef(new Animated.Value(0)).current;
   const animatedDailyTotal = useRef(new Animated.Value(0)).current;
   const animatedBreakfastTotal = useRef(new Animated.Value(0)).current;
@@ -80,9 +80,7 @@ export default function Breakfast({ navigation, route }) {
     useEffect(() => {
     updateMealCalories('breakfast', categoryTotalCalories);
   },[categoryTotalCalories, updateMealCalories]);
-  //const dailyTotalCalories =
-    //(route?.params?.otherMealsCalories || 0) + categoryTotalCalories;
-   // Calculate daily total dynamically from context
+  
   const dailyTotalCalories =
     (mealCalories.breakfast || 0) +
     (mealCalories.lunch || 0) +
@@ -91,7 +89,7 @@ export default function Breakfast({ navigation, route }) {
   const progress = Math.min(dailyTotalCalories / calorieGoal, 1);
    
  
-  // 🔹 Animate when values change
+  //Animate when values change
   useEffect(() => {
     Animated.timing(animatedProgress, {
       toValue: progress,
@@ -126,7 +124,7 @@ export default function Breakfast({ navigation, route }) {
     else return '#F44336';
   };
 
-  // 🔹 Animated number component
+  //  Animated number component
   const AnimatedNumber = ({ value, suffix = ' kcal', prefix = '' }) => {
     const [displayValue, setDisplayValue] = useState(0);
     useEffect(() => {
@@ -189,7 +187,7 @@ export default function Breakfast({ navigation, route }) {
         </View>
       </View>
 
-      {/* 🔹 Animated Progress Bar */}
+      {/* Animated Progress Bar */}
       <View style={styles.progressBarContainer}>
         <View style={styles.progressBarBackground}>
           <Animated.View
@@ -213,7 +211,7 @@ export default function Breakfast({ navigation, route }) {
         showsVerticalScrollIndicator
       />
 
-      {/* 🔹 Animated Summary */}
+      {/*  Animated Summary */}
       <AnimatedSummary
   animatedBreakfastTotal={animatedBreakfastTotal}
   animatedDailyTotal={animatedDailyTotal}
@@ -335,27 +333,5 @@ const styles = StyleSheet.create({
     fontSize: 12, 
     color: '#333' 
   },
-
-  summaryContainer: {
-     
-    borderWidth: 1, 
-    borderColor: '#ddd',
-    backgroundColor: '#4CAF50', 
-    marginBottom: 75,
-    marginHorizontal: 15,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  summaryText: { 
-    fontSize: 18, 
-    fontWeight: '700', 
-    color: '#fff', 
-    marginLeft: 13 ,
-    marginVertical: 4,
-  },
+  
 });

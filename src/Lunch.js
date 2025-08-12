@@ -62,7 +62,7 @@ export default function Lunch({ navigation, route }) {
 
 
 
-  // 🔹 Animated values for bar and numbers
+  // Animated values for bar and numbers
   const animatedProgress = useRef(new Animated.Value(0)).current;
   const animatedDailyTotal = useRef(new Animated.Value(0)).current;
   const animatedLunchTotal = useRef(new Animated.Value(0)).current;
@@ -87,8 +87,6 @@ export default function Lunch({ navigation, route }) {
   updateMealCalories('lunch', categoryTotalCalories);
 }, [categoryTotalCalories, updateMealCalories]);
 
-  //const dailyTotalCalories =
-    //(route?.params?.otherMealsCalories || 0) + categoryTotalCalories;
   const dailyTotalCalories =
     (mealCalories.breakfast || 0) +
     (mealCalories.lunch || 0) +
@@ -96,7 +94,7 @@ export default function Lunch({ navigation, route }) {
     (mealCalories.dinner || 0);
   const progress = Math.min(dailyTotalCalories / calorieGoal, 1);
   
-  // 🔹 Animate when data changes
+  //  Animate when data changes
   useEffect(() => {
     Animated.timing(animatedProgress, {
       toValue: progress,
@@ -131,7 +129,7 @@ export default function Lunch({ navigation, route }) {
     else return '#F44336';
   };
 
-  // 🔹 Reusable Animated Number text
+  // Reusable Animated Number text
   const AnimatedNumber = ({ value, suffix = ' kcal' }) => {
     const [displayValue, setDisplayValue] = useState(0);
     useEffect(() => {
@@ -196,7 +194,7 @@ export default function Lunch({ navigation, route }) {
         </View>
       </View>
 
-      {/* 🔹 Animated Progress Bar */}
+      {/* Animated Progress Bar */}
       <View style={styles.progressBarContainer}>
         <View style={styles.progressBarBackground}>
           <Animated.View
@@ -220,7 +218,7 @@ export default function Lunch({ navigation, route }) {
         showsVerticalScrollIndicator={true}
       />
 
-      {/* 🔹 Animated Summary */}
+      {/* Animated Summary */}
        <AnimatedSummary
               animatedBreakfastTotal={animatedLunchTotal}
               animatedDailyTotal={animatedDailyTotal}
@@ -338,27 +336,5 @@ const styles = StyleSheet.create({
     textAlign: 'right', 
     fontSize: 12, 
     color: '#333' 
-  },
-
-  summaryContainer: {
-    borderWidth: 1, 
-    borderColor: '#ddd',
-    backgroundColor: '#4CAF50', 
-    marginBottom: 75,
-    marginHorizontal: 15,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  summaryText: { 
-    fontSize: 18, 
-    fontWeight: '700', 
-    color: '#fff', 
-    marginLeft: 13 ,
-    marginVertical: 4,
   },
 });
