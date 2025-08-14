@@ -175,9 +175,17 @@ export default function TodayScreen({ navigation }) {
         <View style={styles.section}>
           <View style={[styles.sectionHeader, { alignItems: 'center' }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <MaterialCommunityIcons name="cup-water" size={20} color="#B0B0C3" style={{ marginRight: 6 }} />
+              <MaterialCommunityIcons name="cup-water" size={20} color="#B0B0C3" style={{ marginRight:0}} />
               <Text style={styles.sectionTitle}>WATER</Text>
             </View>
+            <View style={[styles.waterControls, { width: 30, marginLeft: '75%',marginTop: 20 }]}>
+            <TouchableOpacity style={styles.waterBtn} onPress={() => updateWaterGlasses(-1)}>
+              <Text style={styles.waterBtnTxt}>-</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.waterBtn} onPress={() => updateWaterGlasses(1)}>
+              <Text style={styles.waterBtnTxt}>+</Text>
+            </TouchableOpacity>
+          </View>
             <View style={{ width: 46 }} />
           </View>
           <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -188,14 +196,7 @@ export default function TodayScreen({ navigation }) {
             <Animated.View style={[styles.barFill, { backgroundColor: getWaterColor(), width: waterBarWidth }]} />
           </View>
           <Text style={styles.kcalGoal}>{waterGlasses} / {waterGoal} glasses</Text>
-          <View style={[styles.waterControls, { width: 46, marginLeft: '80%' }]}>
-            <TouchableOpacity style={styles.waterBtn} onPress={() => updateWaterGlasses(-1)}>
-              <Text style={styles.waterBtnTxt}>-</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.waterBtn} onPress={() => updateWaterGlasses(1)}>
-              <Text style={styles.waterBtnTxt}>+</Text>
-            </TouchableOpacity>
-          </View>
+          
         </View>
       </ScrollView>
 
@@ -297,9 +298,9 @@ const styles = StyleSheet.create({
   },
   active: { 
     fontSize: 13, 
-    color: '#01011aff', 
+    color: '#1f1f21ff', 
     marginTop: 2, 
-    fontWeight: 'bold' 
+    
   },
   section: { 
     paddingHorizontal: 26 
@@ -344,7 +345,8 @@ const styles = StyleSheet.create({
   foodKcal: { 
     fontSize: 16, 
     color: '#201d1dff', 
-    marginTop: 4 
+    marginTop: 4, 
+    marginRight: '89%' 
   },
   barBg: { 
     height: 8, 
@@ -363,7 +365,7 @@ const styles = StyleSheet.create({
     marginTop: 3, 
     fontSize: 13, 
     color: '#212124ff', 
-    marginLeft: '65%' 
+    marginLeft: '63%' 
   },
   waterControls: { 
     flexDirection: 'row', 
@@ -371,25 +373,27 @@ const styles = StyleSheet.create({
     marginTop: 0, 
     justifyContent: 'center', 
     //marginBottom: 20 ,
-     paddingHorizontal: 18, 
+    paddingHorizontal: 18, 
     paddingVertical: 3, 
   },
   waterBtn: { 
-    width: 36, 
-    height: 36, 
+    width: 30, 
+    height: 30, 
     borderRadius: 18, 
     borderWidth: 1, 
-    borderColor: '#9d9da2ff', 
-    backgroundColor: '#d4d4dbff', 
+    borderColor: '#E6E6EF', 
+    backgroundColor: '#fff', 
     justifyContent: 'center', 
     alignItems: 'center', 
     marginHorizontal: 12 ,
-    marginRight:'100%'
+    marginRight:'100%',
+    marginLeft:-80
   },
   waterBtnTxt: { 
     fontSize: 22, 
     color: '#141313ff', 
-    fontWeight: 'bold' 
+    fontWeight: 'bold',
+    marginBottom:5 
   },
   waterNum: { 
     fontSize: 40, 
