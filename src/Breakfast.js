@@ -1,71 +1,47 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import {
-  View, 
-  Text, 
-  StyleSheet, 
-  SafeAreaView, 
+  SafeAreaView,
+  StyleSheet,
   Dimensions,
-  TouchableOpacity, 
-  FlatList, 
-  Animated
+  TouchableOpacity,
+  FlatList,
+  Animated,
+  View,
+  Text,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Svg, { Path } from 'react-native-svg';
 import SemiRingNavBar from './SemiRingNavBar';
-import AnimatedSummary from './AnimatedSummary'; 
-import { CaloriesContext } from './CaloriesContext';
-
-// Custom hooks
-import  useServings  from './hooks/useServings';
-import  useAnimatedProgress  from './hooks/useAnimatedProgress';
+import { withMealLogic } from './Hoc/withMealLogic';
+import AnimatedSummary from './AnimatedSummary';
 
 const { width } = Dimensions.get('window');
-const STORAGE_KEY_SERVINGS = '@breakfastServings';
 
-export default function Breakfast({ navigation }) {
-  const calorieGoal = 2000;
-  const { mealCalories, updateMealCalories } = useContext(CaloriesContext);
+const breakfastItems = [
+  { id: '1', name: 'TOAST', calories: 80 },
+  { id: '2', name: 'PORK', calories: 250 },
+  { id: '3', name: 'CHICKEN', calories: 200 },
+  { id: '4', name: 'OMELETTE', calories: 150 },
+  { id: '5', name: 'BEEF', calories: 230 },
+  { id: '6', name: 'FISH', calories: 180 },
+  { id: '7', name: 'BACON', calories: 190 },
+  { id: '8', name: 'ORANGE', calories: 60 },
+];
 
-  const breakfastItems = [
-    { id: '1', name: 'TOAST', calories: 80 },
-    { id: '2', name: 'PORK', calories: 250 },
-    { id: '3', name: 'CHICKEN', calories: 200 },
-    { id: '4', name: 'OMELETTE', calories: 150 },
-    { id: '5', name: 'BEEF', calories: 230 },
-    { id: '6', name: 'FISH', calories: 180 },
-    { id: '7', name: 'BACON', calories: 190 },
-    { id: '8', name: 'ORANGE', calories: 60 },
-  ];
-
-  // Servings logic from custom hook
-  const { servings, updateServings, getItemTotalCalories, categoryTotalCalories } =
-    useServings(breakfastItems, STORAGE_KEY_SERVINGS);
-
-  // Update global calories whenever breakfast changes
-  useEffect(() => {
-    updateMealCalories('breakfast', categoryTotalCalories);
-  }, [categoryTotalCalories, updateMealCalories]);
-
-  const dailyTotalCalories =
-    (mealCalories.breakfast || 0) +
-    (mealCalories.lunch || 0) +
-    (mealCalories.snacks || 0) +
-    (mealCalories.dinner || 0);
-
-  const progress = Math.min(dailyTotalCalories / calorieGoal, 1);
-
-  // Progress animation logic from custom hook
-  const {
-    animatedWidth,
-    getProgressColor,
-    animatedDailyTotal,
-    animatedCategoryTotal
-  } = useAnimatedProgress(progress, dailyTotalCalories, categoryTotalCalories);
-
-  // Animated Number display
+function BreakfastUI({
+  navigation,
+  servings,
+  updateServings,
+  getItemTotalCalories,
+  animatedWidth,
+  getProgressColor,
+  animatedDailyTotal,
+  animatedCategoryTotal,
+  calorieGoal,
+}) {
   const AnimatedNumber = ({ value, suffix = ' kcal' }) => {
     const [displayValue, setDisplayValue] = React.useState(0);
-    useEffect(() => {
+    React.useEffect(() => {
       const id = value.addListener(({ value }) => setDisplayValue(Math.round(value)));
       return () => value.removeListener(id);
     }, [value]);
@@ -76,9 +52,7 @@ export default function Breakfast({ navigation }) {
     <View style={styles.listItem}>
       <View style={{ flex: 1 }}>
         <Text style={styles.listItemText}>{item.name}</Text>
-        <Text style={styles.caloriesText}>
-          {item.calories} kcal / serving
-        </Text>
+        <Text style={styles.caloriesText}>{item.calories} kcal / serving</Text>
       </View>
       <View style={styles.counterContainer}>
         <TouchableOpacity style={styles.counterButton} onPress={() => updateServings(item.name, 'increment')}>
@@ -112,27 +86,35 @@ export default function Breakfast({ navigation }) {
         <View style={styles.progressBarBackground}>
           <Animated.View style={[styles.progressBarFill, { width: animatedWidth, backgroundColor: getProgressColor() }]} />
         </View>
-        <Text style={styles.progressText}><AnimatedNumber value={animatedDailyTotal} /> / {calorieGoal} kcal</Text>
+        <Text style={styles.progressText}>
+          <AnimatedNumber value={animatedDailyTotal} /> / {calorieGoal} kcal
+        </Text>
       </View>
 
       {/* List */}
-      <FlatList data={breakfastItems} renderItem={renderItem} keyExtractor={item => item.id} style={styles.listContainer} />
-
+      <FlatList
+        data={breakfastItems}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        style={styles.listContainer}
+      />
       {/* Summary */}
-      <AnimatedSummary animatedBreakfastTotal={animatedCategoryTotal} animatedDailyTotal={animatedDailyTotal} />
+            <AnimatedSummary
+              animatedBreakfastTotal={animatedCategoryTotal}
+              animatedDailyTotal={animatedDailyTotal}
+            />
+      
 
       <SemiRingNavBar navigation={navigation} activeInitial="food" />
     </SafeAreaView>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: '#fff' 
   },
-
   headerContainer: { 
     position: 'relative', 
     height: 250 
@@ -142,11 +124,11 @@ const styles = StyleSheet.create({
     top: 0 
   },
   headerContent: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', 
-    height: 120, 
-    paddingHorizontal: 16, 
+    alignItems: 'center',
+    height: 120,
+    paddingHorizontal: 16,
     paddingTop: 40,
   },
   headerText: { 
@@ -154,16 +136,15 @@ const styles = StyleSheet.create({
     fontSize: 30, 
     fontWeight: '700' 
   },
-
   progressBarContainer: { 
     paddingHorizontal: 10, 
     marginTop: 0 
   },
   progressBarBackground: {
-    height: 10, 
+    height: 10,
     width: '100%',
-    backgroundColor: 'rgba(255,255,255,0.5)', 
-    borderRadius: 10, 
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    borderRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#ddd',
@@ -171,7 +152,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 3,
-    elevation: 3, 
+    elevation: 3,
   },
   progressBarFill: { 
     height: '100%', 
@@ -179,12 +160,11 @@ const styles = StyleSheet.create({
   },
   progressText: {
     marginTop: 5,
-    fontSize: 14, 
-    fontWeight: '600', 
-    color: '#23203F', 
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#23203F',
     textAlign: 'center',
   },
-
   listContainer: { 
     flex: 1, 
     paddingHorizontal: 20, 
@@ -192,10 +172,10 @@ const styles = StyleSheet.create({
     marginBottom: 9 
   },
   listItem: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12, 
-    borderBottomWidth: 1, 
+    paddingVertical: 12,
+    borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   listItemText: { 
@@ -207,18 +187,18 @@ const styles = StyleSheet.create({
     color: '#999', 
     fontSize: 12 
   },
-  counterContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginHorizontal: 8 
+  counterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 8,
   },
   counterButton: {
-    width: 30, 
-    height: 30, 
-    borderRadius: 15, 
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: '#efefef',
-    justifyContent: 'center', 
-    alignItems: 'center', 
+    justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 3,
   },
   counterButtonText: { 
@@ -226,12 +206,12 @@ const styles = StyleSheet.create({
     fontSize: 20, 
     fontWeight: '700' 
   },
-  counterValue: { 
-    fontSize: 16, 
-    fontWeight: '700', 
-    color: '#5D5D91', 
-    width: 20, 
-    textAlign: 'center' 
+  counterValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#5D5D91',
+    width: 20,
+    textAlign: 'center',
   },
   itemTotalCalories: { 
     width: 60, 
@@ -239,5 +219,7 @@ const styles = StyleSheet.create({
     fontSize: 12, 
     color: '#333' 
   },
-  
 });
+
+export default withMealLogic(BreakfastUI, 'breakfast', breakfastItems, '@breakfastServings');
+

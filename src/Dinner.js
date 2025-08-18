@@ -1,26 +1,23 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, SafeAreaView, Dimensions,
-  TouchableOpacity, FlatList, Animated
+  View, 
+  Text, 
+  StyleSheet, 
+  SafeAreaView, 
+  Dimensions,
+  TouchableOpacity, 
+  FlatList, 
+  Animated
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Svg, { Path } from 'react-native-svg';
 import SemiRingNavBar from './SemiRingNavBar';
 import AnimatedSummary from './AnimatedSummary';
-import { CaloriesContext } from './CaloriesContext';
-
-//Import custom hooks
-import  useServings  from './hooks/useServings';
-import  useAnimatedProgress  from './hooks/useAnimatedProgress';
+import { withMealLogic } from './Hoc/withMealLogic';
 
 const { width } = Dimensions.get('window');
-const STORAGE_KEY_SERVINGS = '@dinnerServings';
 
-export default function Dinner({ navigation }) {
-  const calorieGoal = 2000;
-  const { mealCalories, updateMealCalories } = useContext(CaloriesContext);
-
-  const dinnerItems = [
+const dinnerItems = [
     { id: '1', name: 'ROAST CHICKEN', calories: 320 },
     { id: '2', name: 'MASHED POTATOES', calories: 210 },
     { id: '3', name: 'STEAMED VEGGIES', calories: 90 },
@@ -31,28 +28,19 @@ export default function Dinner({ navigation }) {
     { id: '8', name: 'MIXED SALAD', calories: 120 },
   ];
 
-  //Servings state & logic
-  const { servings, updateServings, getItemTotalCalories, categoryTotalCalories } =
-    useServings(dinnerItems, STORAGE_KEY_SERVINGS);
+function DinnerUI({
+  navigation,
+  servings,
+  updateServings,
+  getItemTotalCalories,
+  animatedWidth,
+  getProgressColor,
+  animatedDailyTotal,
+  animatedCategoryTotal,
+  calorieGoal,
+}) {
+  
 
-  // Update global calories whenever dinner changes
-  useEffect(() => {
-    updateMealCalories('dinner', categoryTotalCalories);
-  }, [categoryTotalCalories, updateMealCalories]);
-
-  const dailyTotalCalories =
-    (mealCalories.breakfast || 0) +
-    (mealCalories.lunch || 0) +
-    (mealCalories.snacks || 0) +
-    (mealCalories.dinner || 0);
-
-  const progress = Math.min(dailyTotalCalories / calorieGoal, 1);
-
-  //Progress animation logic
-  const { animatedWidth, getProgressColor, animatedDailyTotal, animatedCategoryTotal } =
-    useAnimatedProgress(progress, dailyTotalCalories, categoryTotalCalories);
-
-  // Animated Number display
   const AnimatedNumber = ({ value, suffix = ' kcal' }) => {
     const [displayValue, setDisplayValue] = useState(0);
     useEffect(() => {
@@ -69,11 +57,17 @@ export default function Dinner({ navigation }) {
         <Text style={styles.caloriesText}>{item.calories} kcal / serving</Text>
       </View>
       <View style={styles.counterContainer}>
-        <TouchableOpacity style={styles.counterButton} onPress={() => updateServings(item.name, 'increment')}>
+        <TouchableOpacity
+          style={styles.counterButton}
+          onPress={() => updateServings(item.name, 'increment')}
+        >
           <Text style={styles.counterButtonText}>+</Text>
         </TouchableOpacity>
         <Text style={styles.counterValue}>{servings[item.name]}</Text>
-        <TouchableOpacity style={styles.counterButton} onPress={() => updateServings(item.name, 'decrement')}>
+        <TouchableOpacity
+          style={styles.counterButton}
+          onPress={() => updateServings(item.name, 'decrement')}
+        >
           <Text style={styles.counterButtonText}>-</Text>
         </TouchableOpacity>
       </View>
@@ -129,52 +123,50 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: '#fff' 
-},
-
+  },
   headerContainer: { 
     position: 'relative', 
     height: 250 
-},
+  },
   svgCurve: { 
     position: 'absolute', 
     top: 0 
-},
+  },
   headerContent: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', 
+    alignItems: 'center',
     height: 120,
-    paddingHorizontal: 16, 
+    paddingHorizontal: 16,
     paddingTop: 40,
   },
   headerText: { 
     color: 'white', 
     fontSize: 30, 
     fontWeight: '700' 
-},
-
+  },
   progressBarContainer: { 
     paddingHorizontal: 10, 
-    marginTop:0, 
-},
+    marginTop: 0 
+  },
   progressBarBackground: {
     height: 10, 
     width: '100%',
     backgroundColor: 'rgba(255,255,255,0.5)', 
-    borderRadius: 10, 
-    overflow: 'hidden',
-    borderWidth: 1,
+    borderRadius: 10,
+    overflow: 'hidden', 
+    borderWidth: 1, 
     borderColor: '#ddd',
-    shadowColor: '#000',
+    shadowColor: '#000', 
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3, 
+    shadowOpacity: 0.15, 
+    shadowRadius: 3, 
+    elevation: 3,
   },
   progressBarFill: { 
     height: '100%', 
     borderRadius: 10 
-},
+  },
   progressText: {
     marginTop: 5, 
     fontSize: 14, 
@@ -182,11 +174,9 @@ const styles = StyleSheet.create({
     color: '#23203F', 
     textAlign: 'center',
   },
-
   listContainer: { 
     paddingHorizontal: 20, 
-    paddingBottom: 10 
-},
+    paddingBottom: 10 },
   listItem: {
     flexDirection: 'row', 
     alignItems: 'center',
@@ -198,22 +188,22 @@ const styles = StyleSheet.create({
     color: '#5D5D91', 
     fontWeight: '600', 
     fontSize: 16 
-},
+  },
   caloriesText: { 
     color: '#999', 
     fontSize: 12 
-},
+  },
   counterContainer: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     marginHorizontal: 8 
-},
+  },
   counterButton: {
     width: 30, 
     height: 30, 
-    borderRadius: 15, 
-    backgroundColor: '#efefef',
-    justifyContent: 'center', 
+    borderRadius: 15,
+    backgroundColor: '#efefef', 
+    justifyContent: 'center',
     alignItems: 'center', 
     marginHorizontal: 3,
   },
@@ -221,19 +211,19 @@ const styles = StyleSheet.create({
     color: '#5D5D91', 
     fontSize: 20, 
     fontWeight: '700' 
-},
-  counterValue: { 
+  },
+  counterValue: {
     fontSize: 16, 
-    fontWeight: '700', 
+    fontWeight: '700',
     color: '#5D5D91', 
     width: 20, 
-    textAlign: 'center' 
-},
+    textAlign: 'center',
+  },
   itemTotalCalories: { 
     width: 60, 
     textAlign: 'right', 
     fontSize: 12, 
     color: '#333' 
-},
-
+  },
 });
+export default withMealLogic(DinnerUI, 'Dinner', dinnerItems, '@dinnerServings' );
