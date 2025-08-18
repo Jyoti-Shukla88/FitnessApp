@@ -1,4 +1,3 @@
-// CaloriesContext.js
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -18,8 +17,8 @@ export const CaloriesProvider = ({ children }) => {
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const calorieGoal = 2150; // kcal per day
-  const waterGoal = 8;      // glasses per day
+  const calorieGoal = 2000; 
+  const waterGoal = 8;      
   const totalCalories = Object.values(mealCalories).reduce((sum, val) => sum + val, 0);
 
   // Load saved data & reset daily

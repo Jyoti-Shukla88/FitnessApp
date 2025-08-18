@@ -1,4 +1,3 @@
-// TodayScreen.js
 import React, { useContext, useRef, useEffect } from 'react';
 import {
   View, Text, SafeAreaView, StyleSheet, ScrollView,

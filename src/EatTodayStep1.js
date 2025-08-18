@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,23 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import Svg, { Path, Line } from 'react-native-svg';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import SemiRingNavBar from './SemiRingNavBar'
+import SemiRingNavBar from './SemiRingNavBar';
+
+import useMealNavigation  from './hooks/useMealNavigation'; 
+
 const { width, height } = Dimensions.get('window');
 
-export default function EatTodayStep1({navigation}) {
-    const [activeButton, setActiveButton] = useState('food');
+export default function EatTodayStep1(navigation ) {
+  const { activeMeal, meals, handleMealPress } = useMealNavigation();
+
+  // positioning for each meal button visually
+  const positions = [
+    { top: 70, left: width / 4 },          
+    { left: 20, top: 200 },                
+    { right: 20, top: 200 },               
+    { top: 300, left: width / 4 },         
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Curved Header */}
@@ -25,7 +37,6 @@ export default function EatTodayStep1({navigation}) {
             d={`M0,200 Q${width / 2},100 ${width},200 L${width},0 L0,0 Z`}
           />
         </Svg>
-
         <View style={styles.headerContent}>
           <Feather name="menu" size={24} color="#fff" />
           <Text style={styles.headerText}>EAT TODAY</Text>
@@ -56,53 +67,31 @@ export default function EatTodayStep1({navigation}) {
           />
         </Svg>
 
-        <TouchableOpacity style={[styles.quadrantButton, { top: 70, left: width / 4 }]}
-        onPress={() => navigation.navigate('Breakfast')}
-        >
-          <MaterialCommunityIcons name="coffee-outline" size={40} color="#5D5D91" />
-          <Text style={styles.quadrantLabel}>BREAKFAST</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.quadrantButton, { left: 20, top: 200 }]}
-        onPress={() => navigation.navigate('Lunch')}
-        >
-          <MaterialCommunityIcons name="silverware-fork-knife" size={40} color="#5D5D91" />
-          <Text style={styles.quadrantLabel}>LUNCH</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.quadrantButton, { right: 20, top: 200 }]}
-         onPress={() => navigation.navigate('Snack')}
-        >
-          <MaterialCommunityIcons name="food-apple-outline" size={40} color="#5D5D91" />
-          <Text style={styles.quadrantLabel}>SNACKS</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.quadrantButton, { top: 300, left: width / 4 }]}
-         onPress={() => navigation.navigate('Dinner')}
-        >
-          <MaterialCommunityIcons name="food-turkey" size={40} color="#5D5D91" />
-          <Text style={styles.quadrantLabel}>DINNER</Text>
-        </TouchableOpacity>
+        {meals.map((meal, index) => (
+          <TouchableOpacity
+            key={meal.key}
+            style={[
+              styles.quadrantButton,
+              positions[index],
+              activeMeal === meal.key && styles.activeButton, 
+            ]}
+            onPress={() => handleMealPress(meal)}
+          >
+            <MaterialCommunityIcons name={meal.icon} size={40} color="#5D5D91" />
+            <Text style={styles.quadrantLabel}>{meal.key.toUpperCase()}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
-       <SemiRingNavBar navigation={navigation} activeInitial="food" />
-      
+
+      <SemiRingNavBar navigation={navigation} activeInitial="food" />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#fff' 
-},
-  headerContainer: { 
-    position: 'relative', 
-    height: 250 
-},
-  svgCurve: { 
-    position: 'absolute', 
-    top: 0 
-},
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerContainer: { position: 'relative', height: 250 },
+  svgCurve: { position: 'absolute', top: 0 },
   headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -111,12 +100,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 40,
   },
-  headerText: {
-    color: 'white',
-    fontSize: 30,
-    fontWeight: '700',
-    letterSpacing: 0,
-  },
+  headerText: { color: 'white', fontSize: 30, fontWeight: '700' },
   quadrantContainer: {
     flex: 1,
     marginHorizontal: 40,
@@ -135,5 +119,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 1,
     textAlign: 'center',
+  },
+  activeButton: {
+    transform: [{ scale: 1.05 }],
+    borderWidth: 1,
+    borderColor: '#5D5D91',
+    borderRadius: 8,
+    paddingVertical: 4,
   },
 });

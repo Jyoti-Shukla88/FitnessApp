@@ -1,28 +1,24 @@
-import React, { useState, useRef, useEffect,useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  Dimensions,
-  TouchableOpacity,
-  FlatList,
-  Animated,
-  Easing
+  View, Text, StyleSheet, SafeAreaView, Dimensions,
+  TouchableOpacity, FlatList, Animated
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import Svg, { Path } from 'react-native-svg';
 import SemiRingNavBar from './SemiRingNavBar';
 import AnimatedSummary from './AnimatedSummary';
 import { CaloriesContext } from './CaloriesContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+//Import custom hooks
+import  useServings  from './hooks/useServings';
+import  useAnimatedProgress  from './hooks/useAnimatedProgress';
 
 const { width } = Dimensions.get('window');
 const STORAGE_KEY_SERVINGS = '@dinnerServings';
 
-export default function Dinner({ navigation, route }) {
+export default function Dinner({ navigation }) {
   const calorieGoal = 2000;
-  const { mealCalories,updateMealCalories } = useContext(CaloriesContext);
+  const { mealCalories, updateMealCalories } = useContext(CaloriesContext);
 
   const dinnerItems = [
     { id: '1', name: 'ROAST CHICKEN', calories: 320 },
@@ -35,121 +31,32 @@ export default function Dinner({ navigation, route }) {
     { id: '8', name: 'MIXED SALAD', calories: 120 },
   ];
 
-  const [servings, setServings] = useState(
-    dinnerItems.reduce((acc, item) => {
-      acc[item.name] = 0;
-      return acc;
-    }, {})
-  );
-  
-    // AsyncStorage: load servings on mount
+  //Servings state & logic
+  const { servings, updateServings, getItemTotalCalories, categoryTotalCalories } =
+    useServings(dinnerItems, STORAGE_KEY_SERVINGS);
+
+  // Update global calories whenever dinner changes
   useEffect(() => {
-    const loadServings = async () => {
-      try {
-        const stored = await AsyncStorage.getItem(STORAGE_KEY_SERVINGS);
-        if (stored) {
-          setServings(JSON.parse(stored));
-        }
-      } catch (e) {
-        console.error('Failed to load servings:', e);
-      }
-    };
-    loadServings();
-  }, []);
+    updateMealCalories('dinner', categoryTotalCalories);
+  }, [categoryTotalCalories, updateMealCalories]);
 
-  // AsyncStorage: save servings whenever updated
-  useEffect(() => {
-    const saveServings = async () => {
-      try {
-        await AsyncStorage.setItem(STORAGE_KEY_SERVINGS, JSON.stringify(servings));
-      } catch (e) {
-        console.error('Failed to save servings:', e);
-      }
-    };
-    saveServings();
-  }, [servings]);
-
-  // Animated values
-  const animatedProgress = useRef(new Animated.Value(0)).current;
-  const animatedCalories = useRef(new Animated.Value(0)).current; // top progress
-  const animatedDinnerTotal = useRef(new Animated.Value(0)).current; // dinner summary
-  const animatedDailyTotal = useRef(new Animated.Value(0)).current; // daily summary
-
-  const updateServings = (itemName, type) => {
-    setServings(prev => {
-      const newVal =
-        type === 'increment' ? prev[itemName] + 1 : Math.max(prev[itemName] - 1, 0);
-      return { ...prev, [itemName]: newVal };
-    });
-  };
-
-  const getItemTotalCalories = (item) => servings[item.name] * item.calories;
-
-  const categoryTotalCalories = dinnerItems.reduce(
-    (total, item) => total + getItemTotalCalories(item),
-    0
-  );
-  useEffect(() => {
-  updateMealCalories('dinner', categoryTotalCalories);
-}, [categoryTotalCalories, updateMealCalories]);
-
-   const dailyTotalCalories =
+  const dailyTotalCalories =
     (mealCalories.breakfast || 0) +
     (mealCalories.lunch || 0) +
     (mealCalories.snacks || 0) +
     (mealCalories.dinner || 0);
+
   const progress = Math.min(dailyTotalCalories / calorieGoal, 1);
-  
-  //  Animate when values change
-  useEffect(() => {
-    Animated.timing(animatedProgress, {
-      toValue: progress,
-      duration: 500,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: false,
-    }).start();
 
-    Animated.timing(animatedCalories, {
-      toValue: dailyTotalCalories,
-      duration: 500,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: false,
-    }).start();
+  //Progress animation logic
+  const { animatedWidth, getProgressColor, animatedDailyTotal, animatedCategoryTotal } =
+    useAnimatedProgress(progress, dailyTotalCalories, categoryTotalCalories);
 
-    Animated.timing(animatedDinnerTotal, {
-      toValue: categoryTotalCalories,
-      duration: 500,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: false,
-    }).start();
-
-    Animated.timing(animatedDailyTotal, {
-      toValue: dailyTotalCalories,
-      duration: 500,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: false,
-    }).start();
-    
-  }, );
-
-  const animatedWidth = animatedProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
-  });
-
-  const getProgressColor = () => {
-    if (progress < 0.8) return '#4CAF50';
-    else if (progress < 1) return '#FF9800';
-    else return '#F44336';
-  };
-
-  //  Animated Number Component
+  // Animated Number display
   const AnimatedNumber = ({ value, suffix = ' kcal' }) => {
     const [displayValue, setDisplayValue] = useState(0);
     useEffect(() => {
-      const id = value.addListener(({ value }) => {
-        setDisplayValue(Math.round(value));
-      });
+      const id = value.addListener(({ value }) => setDisplayValue(Math.round(value)));
       return () => value.removeListener(id);
     }, [value]);
     return <Text>{displayValue}{suffix}</Text>;
@@ -162,17 +69,11 @@ export default function Dinner({ navigation, route }) {
         <Text style={styles.caloriesText}>{item.calories} kcal / serving</Text>
       </View>
       <View style={styles.counterContainer}>
-        <TouchableOpacity
-          style={styles.counterButton}
-          onPress={() => updateServings(item.name, 'increment')}
-        >
+        <TouchableOpacity style={styles.counterButton} onPress={() => updateServings(item.name, 'increment')}>
           <Text style={styles.counterButtonText}>+</Text>
         </TouchableOpacity>
         <Text style={styles.counterValue}>{servings[item.name]}</Text>
-        <TouchableOpacity
-          style={styles.counterButton}
-          onPress={() => updateServings(item.name, 'decrement')}
-        >
+        <TouchableOpacity style={styles.counterButton} onPress={() => updateServings(item.name, 'decrement')}>
           <Text style={styles.counterButtonText}>-</Text>
         </TouchableOpacity>
       </View>
@@ -182,7 +83,7 @@ export default function Dinner({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      
+
       {/* Header */}
       <View style={styles.headerContainer}>
         <Svg height={250} width={width} style={styles.svgCurve}>
@@ -195,19 +96,13 @@ export default function Dinner({ navigation, route }) {
         </View>
       </View>
 
-      {/* Animated Progress Bar */}
+      {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
         <View style={styles.progressBarBackground}>
-          <Animated.View
-            style={[
-              styles.progressBarFill,
-              { width: animatedWidth, backgroundColor: getProgressColor() },
-            ]}
-          />
+          <Animated.View style={[styles.progressBarFill, { width: animatedWidth, backgroundColor: getProgressColor() }]} />
         </View>
-        {/* Animated number at top */}
         <Text style={styles.progressText}>
-          <AnimatedNumber value={animatedCalories} /> / {calorieGoal} kcal
+          <AnimatedNumber value={animatedDailyTotal} /> / {calorieGoal} kcal
         </Text>
       </View>
 
@@ -215,15 +110,13 @@ export default function Dinner({ navigation, route }) {
       <FlatList
         data={dinnerItems}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator
       />
 
-      {/*  Animated Summary */}
-      
-       <AnimatedSummary
-        animatedBreakfastTotal={animatedDinnerTotal}
+      {/* Summary */}
+      <AnimatedSummary
+        animatedBreakfastTotal={animatedCategoryTotal}
         animatedDailyTotal={animatedDailyTotal}
       />
 

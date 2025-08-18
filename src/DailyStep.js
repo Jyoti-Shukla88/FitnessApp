@@ -5,11 +5,9 @@ import {
   StyleSheet,
   SafeAreaView,
   Dimensions,
-  TouchableOpacity,
 } from 'react-native';
 import Svg, { Circle, Rect, Path } from 'react-native-svg';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Feather from 'react-native-vector-icons/Feather';
 import SemiRingNavBar from './SemiRingNavBar'
 const { width } = Dimensions.get('window');
 
