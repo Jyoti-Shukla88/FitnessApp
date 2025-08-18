@@ -3,11 +3,12 @@ import { View, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
-export default function SemiRingNavBar({ navigation }) {
+export default function SemiRingNavBar() {
+  const navigation = useNavigation();
   const route = useRoute();
 
   // Determine active button based on current route name
