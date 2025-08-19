@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -16,6 +16,7 @@ import { withMealLogic } from './Hoc/withMealLogic';
 import AnimatedSummary from './AnimatedSummary';
 
 const { width } = Dimensions.get('window');
+const ITEM_HEIGHT = 70;
 
 const breakfastItems = [
   { id: '1', name: 'TOAST', calories: 80 },
@@ -48,7 +49,7 @@ function BreakfastUI({
     return <Text style={styles.progressText}>{displayValue}{suffix}</Text>;
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = useCallback(({ item }) => (
     <View style={styles.listItem}>
       <View style={{ flex: 1 }}>
         <Text style={styles.listItemText}>{item.name}</Text>
@@ -65,7 +66,12 @@ function BreakfastUI({
       </View>
       <Text style={styles.itemTotalCalories}>{getItemTotalCalories(item)} kcal</Text>
     </View>
-  );
+  ), [servings, updateServings, getItemTotalCalories]);
+  const getItemLayout = useCallback((_, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  }), []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -97,6 +103,11 @@ function BreakfastUI({
         renderItem={renderItem}
         keyExtractor={item => item.id}
         style={styles.listContainer}
+        getItemLayout={getItemLayout}
+        initialNumToRender={4}
+        maxToRenderPerBatch={4}
+        windowSize={5}
+        removeClippedSubviews={true}
       />
       {/* Summary */}
             <AnimatedSummary

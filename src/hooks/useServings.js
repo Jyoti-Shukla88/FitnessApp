@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef,useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function useServings(items, storageKey) {
@@ -10,7 +10,7 @@ export default function useServings(items, storageKey) {
   );
 
   const isMounted = useRef(true);
-
+  const saveTimeout = useRef(null);
   // Load saved servings on mount
   useEffect(() => {
     isMounted.current = true;
@@ -32,16 +32,19 @@ export default function useServings(items, storageKey) {
 
   // Save servings whenever it changes
   useEffect(() => {
-    AsyncStorage.setItem(storageKey, JSON.stringify(servings)).catch(e =>
-      console.error('Failed to save servings:', e)
-    );
+    if (!isMounted.current) return;
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(() => {
+      AsyncStorage.setItem(storageKey, JSON.stringify(servings)).catch(e =>
+        console.error('Failed to save servings:', e)
+      );
+    }, 500); // 500ms debounce
   }, [servings, storageKey]);
-
   // Update servings; useCallback optional
   const updateServings = useCallback((itemName, type) => {
     setServings(prev => {
       const newVal = type === 'increment' ? prev[itemName] + 1 : Math.max(prev[itemName] - 1, 0);
-      return { ...prev, [itemName]: newVal };
+      return prev[itemName] === newVal ? prev : { ...prev, [itemName]: newVal };
     });
   }, []);
 
@@ -50,7 +53,9 @@ export default function useServings(items, storageKey) {
     [servings]
   );
 
-  const categoryTotalCalories = items.reduce((total, item) => total + getItemTotalCalories(item), 0);
+  const categoryTotalCalories = useMemo(() => 
+    items.reduce((total, item) => total + getItemTotalCalories(item), 0)
+  , [items, getItemTotalCalories]);
 
   return {
     servings,

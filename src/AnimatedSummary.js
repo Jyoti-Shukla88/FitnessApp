@@ -1,15 +1,18 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { CaloriesContext } from './CaloriesContext';
 
 export default function AnimatedSummary() {
   const { mealCalories } = useContext(CaloriesContext);
 
-  const dailyTotal =
+  const dailyTotal = useMemo(()=>{
+    return (
     (mealCalories.breakfast || 0) +
     (mealCalories.lunch || 0) +
     (mealCalories.snacks || 0) +
-    (mealCalories.dinner || 0);
+    (mealCalories.dinner || 0)
+    );
+    }, [mealCalories]);
   return (
     <View style={styles.summaryContainer}>
       <Text style={styles.summaryText}>

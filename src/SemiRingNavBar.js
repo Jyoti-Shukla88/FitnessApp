@@ -1,5 +1,10 @@
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { 
+  View, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Dimensions 
+} from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -12,7 +17,7 @@ export default function SemiRingNavBar() {
   const route = useRoute();
 
   // Determine active button based on current route name
-  const getActiveButton = () => {
+  const activeButton= useMemo(() => {
     switch (route.name) {
       case 'EatTodayStep1':
         return 'food';
@@ -23,15 +28,15 @@ export default function SemiRingNavBar() {
       default:
         return 'food';
     }
-  };
+  }, [route.name]);
 
-  const activeButton = getActiveButton();
-
-  const handlePress = (buttonName, screenName) => {
+  const handlePress = useCallback(
+    (buttonName, screenName) => {
     if (route.name !== screenName) {
       navigation.navigate(screenName);
     }
-  };
+  },[navigation, route.name]
+  );
 
   return (
     <View style={styles.container}>

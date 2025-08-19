@@ -7,27 +7,29 @@ export default function useAnimatedProgress(progress, dailyTotal, categoryTotal)
   const animatedCategoryTotal = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    Animated.parallel([
     Animated.timing(animatedProgress, {
       toValue: progress,
       duration: 500,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false
-    }).start();
+    }),
 
     Animated.timing(animatedDailyTotal, {
       toValue: dailyTotal,
       duration: 500,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false
-    }).start();
+    }),
 
     Animated.timing(animatedCategoryTotal, {
       toValue: categoryTotal,
       duration: 500,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false
-    }).start();
-  }, );
+    }),
+  ]).start();
+  }, [progress, dailyTotal, categoryTotal, animatedProgress, animatedDailyTotal, animatedCategoryTotal]);
 
   const animatedWidth = animatedProgress.interpolate({
     inputRange: [0, 1],

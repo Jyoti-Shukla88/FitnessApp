@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const CaloriesContext = createContext();
@@ -68,19 +68,20 @@ export const CaloriesProvider = ({ children }) => {
     setWaterGlasses(prev => Math.max(prev + amount, 0)); // no negatives
   }, []);
 
+  const contextValue = useMemo(() => ({
+     mealCalories,
+     totalCalories,
+     calorieGoal,
+     updateMealCalories,
+     waterGlasses,
+     waterGoal,
+     updateWaterGlasses,
+     isLoaded,
+  }), [mealCalories, totalCalories, waterGlasses, isLoaded, updateMealCalories, updateWaterGlasses]);
+
   return (
     <CaloriesContext.Provider
-      value={{
-        mealCalories,
-        totalCalories,
-        calorieGoal,
-        updateMealCalories,
-        waterGlasses,
-        waterGoal,
-        updateWaterGlasses,
-        isLoaded
-      }}
-    >
+      value={contextValue}>
       {children}
     </CaloriesContext.Provider>
   );
