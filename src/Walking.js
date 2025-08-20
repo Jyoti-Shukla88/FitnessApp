@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,38 +10,18 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Feather from 'react-native-vector-icons/Feather';
-import SemiRingNavBar from './SemiRingNavBar'
+import SemiRingNavBar from './SemiRingNavBar';
+import useTimer from './hooks/useTimer';
+
 const { width } = Dimensions.get('window');
 
 export default function WalkingScreen({navigation}) {
-  const [seconds, setSeconds] = useState(0);
-  const intervalRef = useRef(null);
+  const { seconds, start, pause, reset, formatTime } = useTimer();
 
-  const formatTime = (sec) => {
-    const hrs = String(Math.floor(sec / 3600)).padStart(2, '0');
-    const mins = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-    const secs = String(sec % 60).padStart(2, '0');
-    return `${hrs}:${mins}:${secs}`;
-  };
-
-  const startTimer = () => {
-    if (!intervalRef.current) {
-      intervalRef.current = setInterval(() => {
-        setSeconds((prev) => prev + 1);
-      }, 1000);
-    }
-  };
-
-  const pauseTimer = () => {
-    clearInterval(intervalRef.current);
-    intervalRef.current = null;
-  };
-
-  const resetTimer = () => {
-    pauseTimer();
-    setSeconds(0);
-  };
+  const formattedTime = useMemo(() => formatTime(seconds), [seconds, formatTime]);
+  const handleStart = useCallback(() => start(), [start]);
+  const handlePause = useCallback(() => pause(), [pause]);
+  const handleReset = useCallback(() => reset(), [reset]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -71,15 +51,15 @@ export default function WalkingScreen({navigation}) {
       {/* Controls */}
       <View style={styles.controls}>
         <TouchableOpacity
-          onPress={startTimer}
+          onPress={start}
           style={[styles.controlButton, { backgroundColor: '#ff3b30' }]}
         >
           <MaterialCommunityIcons name="play" size={28} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={pauseTimer} style={styles.controlButton}>
+        <TouchableOpacity onPress={pause} style={styles.controlButton}>
           <MaterialCommunityIcons name="pause" size={28} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={resetTimer} style={styles.controlButton}>
+        <TouchableOpacity onPress={reset} style={styles.controlButton}>
           <MaterialCommunityIcons name="refresh" size={28} color="#fff" />
         </TouchableOpacity>
       </View>
