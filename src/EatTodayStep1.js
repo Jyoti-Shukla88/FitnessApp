@@ -40,7 +40,7 @@ function MealButton({ position, meal, isActive, onPress }) {
   );
 }
 
-export default function EatTodayStep1(navigation ) {
+export default function EatTodayStep1({ route, navigation }) {
   const { activeMeal, meals, handleMealPress } = useMealNavigation();
 
   // positioning for each meal button visually
@@ -65,12 +65,17 @@ export default function EatTodayStep1(navigation ) {
         </Svg>
         <View style={styles.headerContent}>
           <Feather name="menu" size={24} color="#fff" />
-          <Text style={styles.headerText}>EAT TODAY</Text>
+          <View style={{ alignItems: 'center' }}>
+          <Text style={styles.headerText}> EAT TODAY </Text>
+           {route.params?.sort ? (
+            <Text style={styles.sortText}>{route.params.sort}</Text>
+          ) : null}
+          </View>
           <View style={{ width: 24 }} />
         </View>
       </View>
     ),
-    []
+    [route.params?.sort]
   );
 
   const handlePress = useCallback(
@@ -175,4 +180,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 4,
   },
+  sortText: {
+  color: 'white',
+  fontSize: 16,
+  fontWeight: '600',
+  marginTop: 4,
+},
+
 });
