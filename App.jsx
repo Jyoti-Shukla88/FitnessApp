@@ -14,11 +14,23 @@ import Dinner from './src/Dinner';
 import { CaloriesProvider } from './src/CaloriesContext';
 const Stack = createNativeStackNavigator();
 
+const config = {
+  screens: {
+    EatTodayStep1: 'EatTodayStep1/:sort',
+    Breakfast: 'Breakfast',
+  },
+};
+
+const linking = {
+  prefixes: ['deeplink://'],
+  config,
+};
+
 export default function App() {
   return (
     <SafeAreaProvider>
       <CaloriesProvider>
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <Stack.Navigator initialRouteName="EatTodayStep1"
         screenOptions={{ headerShown: false }}
         >
